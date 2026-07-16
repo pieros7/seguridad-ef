@@ -1,0 +1,89 @@
+Imagen 1: Diagrama de Topología y Direccionamiento IP
+
+Encabezado: Examen Parcial - Caso de Estudio.
+Objetivo: El estudiante debe construir la siguiente topología utilizando Docker y redes personalizadas.
+Zona CUSCO (LAN CUSCO)
+
+Dispositivo: Servidor Web.
+Puertos: 80, 443
+IP: 10.10.1.2/24
+Firewall Cusco:
+IP (lado LAN Cusco): 10.10.1.3/24
+IP (lado WAN hacia el router): 192.168.10.2/24
+Red: 10.10.1.0/24
+Zona WAN (Internet)
+
+Dispositivo: user1.
+IP: 192.168.10.4
+Router Central:
+Conexión al Firewall Cusco: IP 192.168.10.3/24 (Segmento de red 192.168.10.0/24).
+Conexión al Firewall Lima (WAN): Flecha superior etiquetada con la IP 192.168.20.3/24.
+Conexión al usuario user1: En la red 192.168.10.0/24.
+Nota de inconsistencia visual: En el lado de la conexión entre el router y el firewall de Lima, en el gráfico superior aparece la IP 192.168.20.3/24, mientras que el firewall de Lima (en el costado izquierdo) tiene la IP 172.31.1.4/24 en ese mismo sentido de flecha.
+Zona LIMA
+
+Firewall Lima:
+IP (lado WAN, conectada al router): 172.31.1.4/24 (según la flecha inferior. Arriba dice 192.168.20.3/24).
+IP (lado DMZ): 172.31.1.4/24
+IP (lado LAN): 172.32.1.4/24
+Subred DMZ LIMA:
+Servidor MySql:
+Puerto: 3306
+IP: 172.31.1.2/24
+Servidor FTP:
+Puerto: 21
+IP: 172.31.1.3/24
+Red: 172.31.1.0/24
+Subred LAN LIMA:
+Cliente 1: IP 172.32.1.2/24
+Cliente 2: IP 172.32.1.3/24
+Red: 172.32.1.0/24
+Conexión especial: Una flecha verde grande indica una VPN - IPsec entre el Firewall de Cusco y el Firewall de Lima. Imagen 2: Reglas de Acceso
+Conectividad en Lima entre la LAN y DMZ:
+
+Desde la subred LAN hay acceso a la subred DMZ y Viceversa.
+Test:
+Ping desde la red LAN a DMZ y desde DMZ a la LAN.
+Conectividad a los puertos 21 y 3306, usar netcat.
+Conectividad entre la DMZ de Lima y WAN:
+
+De la subred DMZ a la subred WAN, solo tiene acceso el servidor FTP.
+De la subred WAN a la subred DMZ, solo hay acceso al servidor FTP.
+Test:
+Ping del usuario externo (user1) al servidor MySql y FTP.
+Ping del servidor MySql y FTP al usuario externo (user1).
+Conectividad a los puertos 21 y 3306, usar netcat.
+Conectividad entre la WAN y LAN de Lima:
+
+De la subred LAN solo el cliente1 tiene acceso.
+De la WAN a la LAN no hay acceso.
+Test:
+Ping del usuario externo a la LAN.
+Ping del cliente1 y cliente2 al usuario externo.
+Conectividad entre la Lima y Cusco:
+
+Entre ambas LAN hay conexión por la VPN.
+La LAN Cusco solo tiene acceso a la DMZ.
+La LAN de Lima solo tiene acceso al servidor Web.
+Test:
+
+Ping de la LAN Cusco a la LAN Lima y DMZ.
+Ping del cliente1 y cliente2 al servidor Web.
+Conectividad al puerto 80, usar netcat. Imagen 3: Configuración de Firewall (Netfilter / iptables)
+
+Reglas de filtrado:
+Filtrar el tráfico según las políticas definidas, considerando IPs y Puertos.
+Considerar el tráfico "ESTABLISHED,RELATED".
+Política por defecto: DROP. Imagen 4: Configuración de los Servidores
+Servidor Web:
+
+Software: Servidor Web Nginx.
+Puertos habilitados: 80 y 443.
+Servidor FTP:
+
+Software: Servidor FTP vsftpd.
+Puerto abierto: 21.
+Servidor MySql:
+
+Software: Servidor MySql o MariaDB.
+Puerto abierto: 3306.
