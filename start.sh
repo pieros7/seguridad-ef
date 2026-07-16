@@ -29,7 +29,7 @@ docker network connect --ip 192.168.10.2 net_wan_cusco fw-cusco
 
 # Zona WAN
 docker run -d --name user1 --hostname user1 --network net_wan_cusco --ip 192.168.10.4 --cap-add NET_ADMIN cliente
-docker run -d --name router-central --hostname router-central --network net_wan_cusco --ip 192.168.10.3 --cap-add NET_ADMIN router
+docker run -d --name router-central --hostname router-central --network net_wan_cusco --ip 192.168.10.3 --privileged router
 docker network connect --ip 192.168.20.3 net_wan_lima router-central
 
 # Zona Lima
