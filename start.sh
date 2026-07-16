@@ -67,9 +67,8 @@ docker exec cliente2-lima ip route replace default via 172.32.1.4
 # Iniciar IPsec (los archivos ya están copiados y con permisos 600 dentro de la imagen)
 docker exec fw-cusco ipsec start
 docker exec fw-lima ipsec start
-# Esperar un momento a que inicien los demonios
+# Esperar un momento a que inicien los demonios y establezcan el túnel automáticamente (auto=start)
 sleep 5
-docker exec fw-cusco ipsec up cusco-lima
 
 # 8. Reglas de Firewall (Netfilter / iptables)
 # --- Reglas de Firewall Cusco ---
