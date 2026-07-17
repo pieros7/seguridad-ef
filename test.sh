@@ -1,37 +1,40 @@
 #!/bin/sh
 
-echo "==================================================================="
-echo " 1) LAN Lima <-> DMZ Lima (Acceso total en ambos sentidos)"
-echo "==================================================================="
-docker exec cliente1-lima ping -c 1 -W 2 172.31.1.2 >/dev/null && echo "  [PASS] ping cliente1-lima -> MySQL" || echo "  [FAIL] ping cliente1-lima -> MySQL"
-docker exec cliente1-lima ping -c 1 -W 2 172.31.1.3 >/dev/null && echo "  [PASS] ping cliente1-lima -> FTP" || echo "  [FAIL] ping cliente1-lima -> FTP"
-docker exec srv-mysql-lima ping -c 1 -W 2 172.32.1.2 >/dev/null && echo "  [PASS] ping MySQL -> cliente1-lima" || echo "  [FAIL] ping MySQL -> cliente1-lima"
-docker exec cliente1-lima nc -zv -w 2 172.31.1.3 21 >/dev/null 2>&1 && echo "  [PASS] netcat cliente1-lima -> FTP:21" || echo "  [FAIL] netcat cliente1-lima -> FTP:21"
-docker exec cliente1-lima nc -zv -w 2 172.31.1.2 3306 >/dev/null 2>&1 && echo "  [PASS] netcat cliente1-lima -> MySQL:3306" || echo "  [FAIL] netcat cliente1-lima -> MySQL:3306"
+echo "=== 1) LAN Lima <-> DMZ Lima ==="
 
-echo "==================================================================="
-echo " 2) DMZ Lima <-> WAN (Solo servidor FTP accede, MySQL bloqueado)"
-echo "==================================================================="
-docker exec user1 ping -c 1 -W 2 172.31.1.3 >/dev/null && echo "  [PASS] ping user1 (WAN) -> FTP (Permitido)" || echo "  [FAIL] ping user1 (WAN) -> FTP"
-docker exec user1 ping -c 1 -W 2 172.31.1.2 >/dev/null && echo "  [FAIL] ping user1 (WAN) -> MySQL (Debería estar bloqueado)" || echo "  [PASS] ping user1 (WAN) -> MySQL (Bloqueado correctamente)"
-docker exec srv-ftp-lima ping -c 1 -W 2 192.168.10.4 >/dev/null && echo "  [PASS] ping FTP -> user1 (WAN) (Permitido)" || echo "  [FAIL] ping FTP -> user1 (WAN)"
-docker exec srv-mysql-lima ping -c 1 -W 2 192.168.10.4 >/dev/null && echo "  [FAIL] ping MySQL -> user1 (WAN) (Debería estar bloqueado)" || echo "  [PASS] ping MySQL -> user1 (WAN) (Bloqueado correctamente)"
-docker exec user1 nc -zv -w 2 172.31.1.3 21 >/dev/null 2>&1 && echo "  [PASS] netcat user1 (WAN) -> FTP:21 (Permitido)" || echo "  [FAIL] netcat user1 (WAN) -> FTP:21"
-docker exec user1 nc -zv -w 2 172.31.1.2 3306 >/dev/null 2>&1 && echo "  [FAIL] netcat user1 (WAN) -> MySQL:3306 (Debería estar bloqueado)" || echo "  [PASS] netcat user1 (WAN) -> MySQL:3306 (Bloqueado correctamente)"
+docker exec cliente1-lima ping -c 2 -W 2 172.31.1.2
+docker exec cliente1-lima ping -c 2 -W 2 172.31.1.3
+docker exec srv-mysql-lima ping -c 2 -W 2 172.32.1.2
+docker exec srv-ftp-lima ping -c 2 -W 2 172.32.1.2
+docker exec cliente1-lima nc -zv -w 2 172.31.1.3 21
+docker exec cliente1-lima nc -zv -w 2 172.31.1.2 3306
 
-echo "==================================================================="
-echo " 3) WAN <-> LAN Lima (Solo cliente1 sale; nada entra desde WAN)"
-echo "==================================================================="
-docker exec user1 ping -c 1 -W 2 172.32.1.2 >/dev/null && echo "  [FAIL] ping user1 (WAN) -> cliente1-lima (Debería estar bloqueado)" || echo "  [PASS] ping user1 (WAN) -> cliente1-lima (Bloqueado correctamente)"
-docker exec cliente1-lima ping -c 1 -W 2 192.168.10.4 >/dev/null && echo "  [PASS] ping cliente1-lima -> user1 (WAN) (Permitido)" || echo "  [FAIL] ping cliente1-lima -> user1 (WAN)"
-docker exec cliente2-lima ping -c 1 -W 2 192.168.10.4 >/dev/null && echo "  [FAIL] ping cliente2-lima -> user1 (WAN) (Debería estar bloqueado)" || echo "  [PASS] ping cliente2-lima -> user1 (WAN) (Bloqueado correctamente)"
+echo "=== 2) DMZ Lima <-> WAN ==="
 
-echo "==================================================================="
-echo " 4) Cusco <-> Lima (Conexión VPN IPsec)"
-echo "==================================================================="
-docker exec srv-web-cusco ping -c 1 -W 2 172.31.1.2 >/dev/null && echo "  [PASS] ping Cusco LAN (web) -> Lima DMZ (MySQL) (Permitido)" || echo "  [FAIL] ping Cusco LAN (web) -> Lima DMZ (MySQL)"
-docker exec srv-web-cusco ping -c 1 -W 2 172.32.1.2 >/dev/null && echo "  [FAIL] ping Cusco LAN (web) -> Lima LAN (cliente1) (Debería estar bloqueado)" || echo "  [PASS] ping Cusco LAN (web) -> Lima LAN (cliente1) (Bloqueado correctamente)"
-docker exec cliente1-lima ping -c 1 -W 2 10.10.1.2 >/dev/null && echo "  [PASS] ping Lima LAN (cliente1) -> Cusco Web (Permitido)" || echo "  [FAIL] ping Lima LAN (cliente1) -> Cusco Web"
-docker exec cliente1-lima nc -zv -w 2 10.10.1.2 80 >/dev/null 2>&1 && echo "  [PASS] netcat Lima LAN (cliente1) -> Cusco Web:80 (Permitido)" || echo "  [FAIL] netcat Lima LAN (cliente1) -> Cusco Web:80"
-docker exec cliente1-lima nc -zv -w 2 10.10.1.2 443 >/dev/null 2>&1 && echo "  [PASS] netcat Lima LAN (cliente1) -> Cusco Web:443 (Permitido)" || echo "  [FAIL] netcat Lima LAN (cliente1) -> Cusco Web:443"
-echo "==================================================================="
+docker exec user1 ping -c 2 -W 2 172.31.1.3
+docker exec user1 ping -c 2 -W 2 172.31.1.2
+docker exec srv-ftp-lima ping -c 2 -W 2 192.168.10.4
+docker exec srv-mysql-lima ping -c 2 -W 2 192.168.10.4
+docker exec user1 nc -zv -w 2 172.31.1.3 21
+docker exec user1 nc -zv -w 2 172.31.1.2 3306
+
+echo "=== 3) WAN <-> LAN Lima ==="
+
+docker exec user1 ping -c 2 -W 2 172.32.1.2
+docker exec user1 ping -c 2 -W 2 172.32.1.3
+docker exec cliente1-lima ping -c 2 -W 2 192.168.10.4
+docker exec cliente2-lima ping -c 2 -W 2 192.168.10.4
+
+echo "=== 4) Lima <-> Cusco ==="
+
+docker exec srv-web-cusco ping -c 2 -W 2 172.32.1.2
+docker exec srv-web-cusco ping -c 2 -W 2 172.31.1.2
+docker exec cliente1-lima ping -c 2 -W 2 10.10.1.2
+docker exec cliente2-lima ping -c 2 -W 2 10.10.1.2
+docker exec cliente1-lima nc -zv -w 2 10.10.1.2 80
+
+echo "=== Firewall Cusco (iptables) ==="
+docker exec fw-cusco iptables -L -n -v
+
+echo "=== Firewall Lima (iptables) ==="
+docker exec fw-lima iptables -L -n -v
