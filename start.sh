@@ -23,24 +23,24 @@ docker build -t mysql dockerfiles/mysql
 
 # 4. Despliegue de contenedores y asignación a redes
 # Zona Cusco
-docker run -d --name srv-web-cusco --hostname srv-web-cusco --network net_lan_cusco --ip 10.10.1.2 --cap-add NET_ADMIN web
-docker run -d --name fw-cusco --hostname fw-cusco --network net_lan_cusco --ip 10.10.1.3 --privileged firewall-cusco
+docker run -d --name srv-web-cusco --hostname srv-web-cusco --network net_lan_cusco --ip 10.10.1.2 --cap-add NET_ADMIN --sysctl net.ipv6.conf.all.disable_ipv6=1 web
+docker run -d --name fw-cusco --hostname fw-cusco --network net_lan_cusco --ip 10.10.1.3 --privileged --sysctl net.ipv6.conf.all.disable_ipv6=1 firewall-cusco
 docker network connect --ip 192.168.10.2 net_wan_cusco fw-cusco
 
 # Zona WAN
-docker run -d --name user1 --hostname user1 --network net_wan_cusco --ip 192.168.10.4 --cap-add NET_ADMIN cliente
-docker run -d --name router-central --hostname router-central --network net_wan_cusco --ip 192.168.10.3 --privileged router
+docker run -d --name user1 --hostname user1 --network net_wan_cusco --ip 192.168.10.4 --cap-add NET_ADMIN --sysctl net.ipv6.conf.all.disable_ipv6=1 cliente
+docker run -d --name router-central --hostname router-central --network net_wan_cusco --ip 192.168.10.3 --privileged --sysctl net.ipv6.conf.all.disable_ipv6=1 router
 docker network connect --ip 192.168.20.3 net_wan_lima router-central
 
 # Zona Lima
-docker run -d --name fw-lima --hostname fw-lima --network net_wan_lima --ip 192.168.20.4 --privileged firewall-lima
+docker run -d --name fw-lima --hostname fw-lima --network net_wan_lima --ip 192.168.20.4 --privileged --sysctl net.ipv6.conf.all.disable_ipv6=1 firewall-lima
 docker network connect --ip 172.31.1.4 net_dmz_lima fw-lima
 docker network connect --ip 172.32.1.4 net_lan_lima fw-lima
 
-docker run -d --name srv-mysql-lima --hostname srv-mysql-lima --network net_dmz_lima --ip 172.31.1.2 --cap-add NET_ADMIN -e MARIADB_ROOT_PASSWORD=RootSecure2026 -e MARIADB_DATABASE=seguridad_db -e MARIADB_USER=seguridad_user -e MARIADB_PASSWORD=SecurePass2026 mysql
-docker run -d --name srv-ftp-lima --hostname srv-ftp-lima --network net_dmz_lima --ip 172.31.1.3 --cap-add NET_ADMIN ftp
-docker run -d --name cliente1-lima --hostname cliente1-lima --network net_lan_lima --ip 172.32.1.2 --cap-add NET_ADMIN cliente
-docker run -d --name cliente2-lima --hostname cliente2-lima --network net_lan_lima --ip 172.32.1.3 --cap-add NET_ADMIN cliente
+docker run -d --name srv-mysql-lima --hostname srv-mysql-lima --network net_dmz_lima --ip 172.31.1.2 --cap-add NET_ADMIN --sysctl net.ipv6.conf.all.disable_ipv6=1 -e MARIADB_ROOT_PASSWORD=RootSecure2026 -e MARIADB_DATABASE=seguridad_db -e MARIADB_USER=seguridad_user -e MARIADB_PASSWORD=SecurePass2026 mysql
+docker run -d --name srv-ftp-lima --hostname srv-ftp-lima --network net_dmz_lima --ip 172.31.1.3 --cap-add NET_ADMIN --sysctl net.ipv6.conf.all.disable_ipv6=1 ftp
+docker run -d --name cliente1-lima --hostname cliente1-lima --network net_lan_lima --ip 172.32.1.2 --cap-add NET_ADMIN --sysctl net.ipv6.conf.all.disable_ipv6=1 cliente
+docker run -d --name cliente2-lima --hostname cliente2-lima --network net_lan_lima --ip 172.32.1.3 --cap-add NET_ADMIN --sysctl net.ipv6.conf.all.disable_ipv6=1 cliente
 
 # 5. Habilitar reenvío de IP (ip_forward)
 docker exec fw-cusco sysctl -w net.ipv4.ip_forward=1
