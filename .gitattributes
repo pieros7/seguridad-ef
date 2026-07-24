@@ -1,0 +1,8 @@
+# Los archivos que se copian dentro de contenedores Linux (Dockerfiles, configs,
+# scripts) deben mantener siempre LF, sin importar el core.autocrlf del cliente
+# git. CRLF rompe el parser de strongSwan (ipsec.conf) y otros parsers de config.
+*.sh text eol=lf
+Dockerfile text eol=lf
+dockerfiles/**/*.conf text eol=lf
+dockerfiles/**/*.secrets text eol=lf
+dockerfiles/**/*.json text eol=lf
